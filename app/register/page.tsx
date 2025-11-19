@@ -23,7 +23,7 @@ export default function ProfileCard() {
     }
 
     try {
-      // 🔹 Call mutation and unwrap to get response
+
       const result = await register(formData).unwrap();
       console.log("Signup successful:", result);
 
