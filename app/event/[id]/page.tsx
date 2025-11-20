@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import { useGetEventByIdQuery } from "@/app/redux/EventApi/eventApi";
 import { ArrowLeft, Calendar, Clock, MapPin } from "lucide-react";
@@ -5,6 +8,7 @@ import { useParams } from "next/navigation";
 import SeatSelector from "@/components/seat-selecter";
 import { useRouter } from "next/navigation";
 import { useAppDispatch , useAppSelector } from "@/app/redux/hooks";
+import { useAddbookingMutation } from "@/app/redux/bookingApi/bookingApi";
 import { useState } from "react";
 export default function page() {
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
@@ -12,14 +16,40 @@ export default function page() {
   const id = params.id as string;
   const { data } = useGetEventByIdQuery(id);
   const router = useRouter();
-   const { isAuthenticated, isLoading } = useAppSelector(state => state.auth) 
+   const { isAuthenticated  , token} = useAppSelector(state => state.auth) 
+   const [addbooking,  isLoading] = useAddbookingMutation();
+   const dispatch = useAppDispatch();
+   const {user } = useAppSelector(state => state.auth);
+  const userId =  user?._id as string
 
-  const handleContinue = ()=>{
-    isAuthenticated ?  router.push("/booking") : router.push("/login");
-  }
+  console.log("Debbuging the token" , token)
 
+const handleContinue = async () => {
+  // if (!isAuthenticated) return alert("Please login first");
 
-  const selectedSeatObjects = data?.data?.seats?.filter((seat) => {
+  // try {
+  //   const res = await addbooking({
+  //     userId,
+  //     eventId: id,
+  //     total,
+  //     selectedSeats,
+  //   }).unwrap();
+
+  //   console.log("Booking Success:", res);
+
+  //   alert("Booking successful! Check your email for the ticket.");
+  // } catch (err: any) {
+  //   console.log("Booking Error:", err);
+  //   alert(err?.data?.message || "Booking failed. Try again!");
+  // }
+
+  
+router.push(`/ordersumarry?eventId=${id}&fess=${fess}&total=${total}`);
+   
+};
+ 
+
+  const selectedSeatObjects =    data?.data?.seats?.filter((seat) => {
     return selectedSeats.includes(seat.seatId);
   });
   const subTotal =

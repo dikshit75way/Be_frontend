@@ -25,8 +25,8 @@ export default function ProfileCard() {
       }).unwrap();
     
       console.log("login sucess " , result);
-      dispatch(setCredentials({token: result.access_token , user : result.user}))
-      router.push("/booking")
+      dispatch(setCredentials({token: result?.data?.token , user : result.user}))
+      router.push("/")
     }catch(error : any)
     {
       console.error("Login failed" , error)
