@@ -53,7 +53,7 @@ export default function Booking() {
             {/* QR Button */}
             <button
               onClick={() => router.push(`/booking/${b._id}`)}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg mt-3 hover:bg-blue-700 transition"
+              className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent hover:text-accent-foreground transition-all"
             >
               View QR Code
             </button>

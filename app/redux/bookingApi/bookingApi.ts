@@ -3,13 +3,21 @@ import { bookingDto, resBooking } from "../types/booking";
 
 export const bookingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    addbooking: builder.mutation<resBooking, bookingDto>({
-      query: (body) => ({
-        url: `/booking/${body.eventId}/book`,
-        method: "POST",
-        body,
-      }),
-    }),
+   reserveSeats: builder.mutation({
+  query: ({ eventId, seatIds, userId }) => ({
+    url: `/booking/reserve/${eventId}`,
+    method: "POST",
+    body: { seatIds, userId }
+  })
+}),
+
+createPaymentIntent: builder.mutation({
+  query: ({ amount, eventId, seatIds, userId }) => ({
+    url: `/payment/create-payment-intent`,
+    method: "POST",
+    body: { amount, eventId, seatIds, userId }
+  })
+}),
     fetchBookings: builder.query<any , void>({
       query: () => "/booking",
     }),
@@ -20,4 +28,4 @@ export const bookingApi = baseApi.injectEndpoints({
   }),
 });
 
-export const {useAddbookingMutation , useFetchBookingsQuery , useFetchSingleBookingQuery} = bookingApi
+export const {useReserveSeatsMutation , useCreatePaymentIntentMutation , useFetchBookingsQuery , useFetchSingleBookingQuery} = bookingApi

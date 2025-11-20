@@ -4,9 +4,13 @@ import { ArrowLeft, Calendar, Clock, MapPin } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import SeatSelector from "@/components/seat-selecter";
 import { useAppSelector } from "@/app/redux/hooks";
-import { useAddbookingMutation } from "@/app/redux/bookingApi/bookingApi";
+import { useReserveSeatsMutation , useCreatePaymentIntentMutation } from "@/app/redux/bookingApi/bookingApi";
 import { useState } from "react";
 import { ISeat } from "@/app/redux/types/events";
+import { loadStripe } from "@stripe/stripe-js";
+
+
+
 
 export default function Page() {
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
@@ -14,11 +18,14 @@ export default function Page() {
   const id = params.id as string;
   const { data } = useGetEventByIdQuery(id);
   const router = useRouter();
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
 
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const userId = user?._id as string;
 
-  const [addBooking, { isLoading: isBooking }] = useAddbookingMutation();
+  const [reserveSeats] = useReserveSeatsMutation();
+const [createPaymentIntent] = useCreatePaymentIntentMutation();
 
   const selectedSeatObjects: ISeat[] = data?.data?.seats?.filter((seat: ISeat) =>
     selectedSeats.includes(seat.seatId)
@@ -30,26 +37,44 @@ export default function Page() {
   const total = subTotal + fess;
 
   const handleContinue = async () => {
-    if (!isAuthenticated) return alert("Please login first");
+  if (!isAuthenticated) return alert("Please login first");
 
-    try {
-      const res = await addBooking({
-        userId,
-        eventId: id,
-        total,
-        selectedSeats,
-      }).unwrap();
+  try {
+    // 1️⃣ Reserve selected seats
+    const reserveRes = await reserveSeats({
+      eventId: id,
+      seatIds: selectedSeats,
+      userId,
+    }).unwrap();
 
-      console.log("Booking Success:", res);
-      alert("Booking successful! Check your email for the ticket.");
-      const bookingId = res?.data?._id;
-      // console.log("debuggin the id" , id);
-      router.push(`/booking/${bookingId}`);
-    } catch (err: any) {
-      console.log("Booking Error:", err);
-      alert(err?.data?.message || "Booking failed. Try again!");
+    if (!reserveRes.success) {
+      alert("Failed to reserve seats");
+      return;
     }
-  };
+
+    // 2️⃣ Generate Stripe PaymentIntent
+    const paymentRes = await createPaymentIntent({
+      amount: total,
+      eventId: id,
+      seatIds: selectedSeats,
+      userId,
+    }).unwrap();
+
+    const stripe = await stripePromise;
+
+    // 3️⃣ Redirect to Stripe Checkout
+    const result = await stripe?.redirectToCheckout({
+      sessionId: paymentRes.sessionId,
+    });
+
+    if (result?.error) {
+      alert(result.error.message);
+    }
+  } catch (err) {
+    console.log("Error:", err);
+    alert("Something went wrong. Try again!");
+  }
+};
 
   return (
     <div className="min-h-screen bg-background">
@@ -189,11 +214,11 @@ export default function Page() {
               </div>
 
               <button
-                disabled={selectedSeats.length === 0 || isBooking}
+                disabled={selectedSeats.length === 0}
                 className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 onClick={handleContinue}
               >
-                {isBooking ? "Loading..." : "Continue to Checkout"}
+               Continue to Checkout
               </button>
             </div>
           </div>
