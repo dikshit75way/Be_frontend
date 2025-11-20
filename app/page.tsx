@@ -3,6 +3,7 @@
 import { Search } from "lucide-react";
 import { useGetEventsQuery } from "./redux/EventApi/eventApi";
 import EventCard from "@/components/EventCard";
+import { IEvent } from "./redux/types/events";
 
 export default function Home() {
   const { data, isLoading } = useGetEventsQuery();
@@ -35,7 +36,7 @@ export default function Home() {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {data?.data?.map((event) => (
+        {data?.data?.map((event :IEvent) => (
           <EventCard key={event._id} event={event} />
         ))}
       </div>

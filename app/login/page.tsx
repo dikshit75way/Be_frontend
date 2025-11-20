@@ -1,35 +1,34 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { useState } from "react";
-import {  useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useLoginMutation } from "../redux/authApi/authApi";
-import { useAppDispatch , useAppSelector } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setCredentials } from "../redux/slices/authSlice";
 export default function ProfileCard() {
   const router  = useRouter();
   const dispatch = useAppDispatch();
-  // const {loading , error  , access_token } = useAppSelector((stste)=> stste.auth);
+
   const [formData, setFormData] = useState({ email: "", password: "" });
 
-  const [login , {isLoading , error} ] = useLoginMutation();  
-
-  
+  const [login, { isLoading, error }] = useLoginMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
-   e.preventDefault();
-   if (!formData.email || !formData.password) return;
-    try{
-      const  result = await login({
-        email : formData.email ,
-        password : formData.password
+    e.preventDefault();
+    if (!formData.email || !formData.password) return;
+    try {
+      const result = await login({
+        email: formData.email,
+        password: formData.password,
       }).unwrap();
-    
-      console.log("login sucess " , result);
-      dispatch(setCredentials({token: result?.data?.token , user : result.user}))
-      router.push("/")
-    }catch(error : any)
-    {
-      console.error("Login failed" , error)
+
+      console.log("login sucess ", result);
+      dispatch(
+        setCredentials({ token: result?.data?.token, user: result?.data.user })
+      );
+      router.push("/");
+    } catch (error: any) {
+      console.error("Login failed", error);
     }
   };
 
@@ -38,7 +37,9 @@ export default function ProfileCard() {
       {/* Header */}
       <div className="text-center mb-8">
         <h2 className="font-bold text-3xl text-gray-800">Welcome Back 👋</h2>
-        <p className="font-medium text-gray-500 mt-2">Sign in to your account</p>
+        <p className="font-medium text-gray-500 mt-2">
+          Sign in to your account
+        </p>
       </div>
 
       {/* Card */}
@@ -47,7 +48,9 @@ export default function ProfileCard() {
         className="flex flex-col overflow-y-hidden justify-center gap-4 shadow-lg p-8 w-full max-w-sm bg-white rounded-2xl border border-gray-100"
       >
         {error && (
-          <p className="text-red-600 text-sm font-medium text-center">{error}</p>
+          <p className="text-red-600 text-sm font-medium text-center">
+            {error as string}
+          </p>
         )}
 
         <input
@@ -95,7 +98,10 @@ export default function ProfileCard() {
       {/* Signup link */}
       <p className="text-center font-medium text-gray-600 mt-6">
         Don’t have an account?{" "}
-        <span onClick={()=>router.push("/register")} className="cursor-pointer font-semibold text-gray-800 hover:underline">
+        <span
+          onClick={() => router.push("/register")}
+          className="cursor-pointer font-semibold text-gray-800 hover:underline"
+        >
           Sign Up
         </span>
       </p>
@@ -103,6 +109,6 @@ export default function ProfileCard() {
   );
 }
 
-function loginUser(arg0: { email: string; password: string; }) {
+function loginUser(arg0: { email: string; password: string }) {
   throw new Error("Function not implemented.");
 }

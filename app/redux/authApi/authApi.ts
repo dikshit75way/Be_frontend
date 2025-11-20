@@ -1,15 +1,17 @@
 import { baseApi } from "../EventApi/baseApi";
+import { IResponse, loginDto, registerDto } from "../types/auth";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation({
+    login: builder.mutation<IResponse , loginDto>({
       query: (body) => ({
         url: "/auth/login",
         method: "POST",
         body,
       }),
     }),
-    register: builder.mutation({
+
+    register: builder.mutation<IResponse ,registerDto>({
       query: (body) => ({
         url: "/auth/register",
         method: "POST",
@@ -18,13 +20,13 @@ export const authApi = baseApi.injectEndpoints({
     }),
 
     fetchUser: builder.query({
-      query: () => "/auth/me",
+      query: (id) => `/auth/${id}`,
     }),
   }),
 });
 
 export const {
-  useLoginMutation ,
-  useRegisterMutation ,
-  useFetchUserQuery
-} = authApi
+  useLoginMutation,
+  useRegisterMutation,
+  useFetchUserQuery,
+} = authApi;

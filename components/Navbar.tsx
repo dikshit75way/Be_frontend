@@ -29,7 +29,7 @@ export default function Navbar() {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
-          <h4 className="hover:text-indigo-700 cursor-pointer">Bookings</h4>
+          <h4 onClick={()=> router.push("/booking")} className="hover:text-indigo-700 cursor-pointer">Bookings</h4>
           <h4 className="hover:text-indigo-700 cursor-pointer">Events</h4>
           {isAuthenticated ? (
             <button onClick={handleLogout} className="bg-indigo-900 hover:bg-indigo-500 text-white w-24 h-10 rounded-md font-semibold">

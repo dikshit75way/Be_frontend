@@ -10,6 +10,7 @@ export default function ProfileCard() {
   const disaptch = useAppDispatch();
   const [register , {isLoading , error }] = useRegisterMutation()
   const [formData, setFormData] = useState({ name : "", email: "", password: "" });
+  console.log("debbuging the error msg" , error)
 
 
  
@@ -48,7 +49,7 @@ export default function ProfileCard() {
         className="flex flex-col overflow-y-hidden justify-center gap-4 shadow-lg p-8 w-full max-w-sm bg-white rounded-2xl border border-gray-100"
       >
         {error && (
-          <p className="text-red-600 text-sm font-medium text-center">{error}</p>
+          <p className="text-red-600 text-sm font-medium text-center">{error as string}</p>
         )}
 
            <input

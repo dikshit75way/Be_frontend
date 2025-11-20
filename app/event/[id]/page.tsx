@@ -1,72 +1,68 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import { useGetEventByIdQuery } from "@/app/redux/EventApi/eventApi";
 import { ArrowLeft, Calendar, Clock, MapPin } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import SeatSelector from "@/components/seat-selecter";
-import { useRouter } from "next/navigation";
-import { useAppDispatch , useAppSelector } from "@/app/redux/hooks";
+import { useAppSelector } from "@/app/redux/hooks";
 import { useAddbookingMutation } from "@/app/redux/bookingApi/bookingApi";
 import { useState } from "react";
-export default function page() {
+import { ISeat } from "@/app/redux/types/events";
+
+export default function Page() {
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const params = useParams();
   const id = params.id as string;
   const { data } = useGetEventByIdQuery(id);
   const router = useRouter();
-   const { isAuthenticated  , token} = useAppSelector(state => state.auth) 
-   const [addbooking,  isLoading] = useAddbookingMutation();
-   const dispatch = useAppDispatch();
-   const {user } = useAppSelector(state => state.auth);
-  const userId =  user?._id as string
 
-  console.log("Debbuging the token" , token)
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const userId = user?._id as string;
 
-const handleContinue = async () => {
-  // if (!isAuthenticated) return alert("Please login first");
+  const [addBooking, { isLoading: isBooking }] = useAddbookingMutation();
 
-  // try {
-  //   const res = await addbooking({
-  //     userId,
-  //     eventId: id,
-  //     total,
-  //     selectedSeats,
-  //   }).unwrap();
+  const selectedSeatObjects: ISeat[] = data?.data?.seats?.filter((seat: ISeat) =>
+    selectedSeats.includes(seat.seatId)
+  );
 
-  //   console.log("Booking Success:", res);
-
-  //   alert("Booking successful! Check your email for the ticket.");
-  // } catch (err: any) {
-  //   console.log("Booking Error:", err);
-  //   alert(err?.data?.message || "Booking failed. Try again!");
-  // }
-
-  
-router.push(`/ordersumarry?eventId=${id}&fess=${fess}&total=${total}`);
-   
-};
- 
-
-  const selectedSeatObjects =    data?.data?.seats?.filter((seat) => {
-    return selectedSeats.includes(seat.seatId);
-  });
   const subTotal =
     selectedSeatObjects?.reduce((sum, seat) => sum + seat.price, 0) || 0;
   const fess = Math.round(subTotal * 0.1);
   const total = subTotal + fess;
 
+  const handleContinue = async () => {
+    if (!isAuthenticated) return alert("Please login first");
+
+    try {
+      const res = await addBooking({
+        userId,
+        eventId: id,
+        total,
+        selectedSeats,
+      }).unwrap();
+
+      console.log("Booking Success:", res);
+      alert("Booking successful! Check your email for the ticket.");
+      const bookingId = res?.data?._id;
+      // console.log("debuggin the id" , id);
+      router.push(`/booking/${bookingId}`);
+    } catch (err: any) {
+      console.log("Booking Error:", err);
+      alert(err?.data?.message || "Booking failed. Try again!");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      {" "}
       <main className="container mx-auto px-4 py-8">
         {/* Back Button */}
         <button
-          onClick={() => router.back("/")}
+          onClick={() => router.back()}
           className="flex items-center gap-2 text-primary hover:text-accent mb-8 transition-colors font-medium"
         >
+          {" "}
           <ArrowLeft className="w-5 h-5" />
-          Back to Events
+          Back to Events{" "}
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -75,7 +71,7 @@ router.push(`/ordersumarry?eventId=${id}&fess=${fess}&total=${total}`);
             <div className="mb-8">
               <img
                 src={data?.data?.image.url || "/placeholder.svg"}
-                alt={data?.data.title}
+                alt={data?.data?.title}
                 className="w-full rounded-lg object-cover h-96 mb-8"
               />
               <h1 className="text-4xl font-bold text-foreground mb-4 text-balance">
@@ -120,8 +116,6 @@ router.push(`/ordersumarry?eventId=${id}&fess=${fess}&total=${total}`);
                 Select Your Seats
               </h2>
               <SeatSelector
-                totalRows={10}
-                seatsPerRow={12}
                 selectedSeats={selectedSeats}
                 seats={data?.data?.seats}
                 onSelectSeat={(seatId) => {
@@ -149,6 +143,7 @@ router.push(`/ordersumarry?eventId=${id}&fess=${fess}&total=${total}`);
             </div>
           </div>
 
+          {/* Order Summary / Booking Button */}
           <div className="lg:col-span-1">
             <div className="bg-card border border-border rounded-lg p-6 sticky top-4">
               <h3 className="text-xl font-bold text-foreground mb-6">
@@ -194,11 +189,11 @@ router.push(`/ordersumarry?eventId=${id}&fess=${fess}&total=${total}`);
               </div>
 
               <button
-                disabled={selectedSeats.length === 0}
+                disabled={selectedSeats.length === 0 || isBooking}
                 className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 onClick={handleContinue}
               >
-                Continue to Checkout
+                {isBooking ? "Loading..." : "Continue to Checkout"}
               </button>
             </div>
           </div>
