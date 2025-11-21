@@ -42,5 +42,5 @@ export interface IEvent {
 export interface IFetchEventResponse {
   success: boolean;
   message: string;
-  data: IEvent;
+  data: object | null | any;
 }

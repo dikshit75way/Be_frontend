@@ -1,19 +1,14 @@
 "use client";
 
 import { CheckCircle, Download, Mail } from "lucide-react";
-import { useParams } from "next/navigation";
+
 import { useFetchSingleBookingQuery } from "@/app/redux/bookingApi/bookingApi";
 import { useFetchUserQuery } from "@/app/redux/authApi/authApi";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
-
-
-export default function ConfirmationPage({
-  
-}) {
+export default function ConfirmationPage({}) {
   const params = useParams();
   const bookingId = params.id as string;
-  console.log("bookingId", bookingId);
   const { data, isLoading } = useFetchSingleBookingQuery(bookingId);
   const { data: user } = useFetchUserQuery(data?.data?.userId);
   const router = useRouter();
@@ -24,10 +19,10 @@ export default function ConfirmationPage({
   const reference = data?.data?.eventId
     ? `EVT-${data.data.eventId.slice(-6).toUpperCase()}`
     : "N/A";
-    
-  const handleHome= ()=>{
-   router.push("/booking");
-  }
+
+  const handleHome = () => {
+    router.push("/booking");
+  };
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-12">

@@ -4,13 +4,14 @@ import { ArrowLeft, Calendar, Clock, MapPin } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import SeatSelector from "@/components/seat-selecter";
 import { useAppSelector } from "@/app/redux/hooks";
-import { useReserveSeatsMutation , useCreatePaymentIntentMutation } from "@/app/redux/bookingApi/bookingApi";
+import {
+  useReserveSeatsMutation,
+  useCreatePaymentIntentMutation,
+} from "@/app/redux/bookingApi/bookingApi";
 import { useState } from "react";
 import { ISeat } from "@/app/redux/types/events";
 import { loadStripe } from "@stripe/stripe-js";
-
-
-
+import { useAddbookingMutation } from "@/app/redux/bookingApi/bookingApi";
 
 export default function Page() {
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
@@ -18,17 +19,19 @@ export default function Page() {
   const id = params.id as string;
   const { data } = useGetEventByIdQuery(id);
   const router = useRouter();
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
-
+  const stripePromise = loadStripe(
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+  );
 
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const userId = user?._id as string;
 
   const [reserveSeats] = useReserveSeatsMutation();
-const [createPaymentIntent] = useCreatePaymentIntentMutation();
+  const [createPaymentIntent] = useCreatePaymentIntentMutation();
+  const [addbooking] = useAddbookingMutation();
 
-  const selectedSeatObjects: ISeat[] = data?.data?.seats?.filter((seat: ISeat) =>
-    selectedSeats.includes(seat.seatId)
+  const selectedSeatObjects: ISeat[] = data?.data?.seats?.filter(
+    (seat: ISeat) => selectedSeats.includes(seat.seatId)
   );
 
   const subTotal =
@@ -37,44 +40,48 @@ const [createPaymentIntent] = useCreatePaymentIntentMutation();
   const total = subTotal + fess;
 
   const handleContinue = async () => {
-  if (!isAuthenticated) return alert("Please login first");
+    if (!isAuthenticated) return alert("Please login first");
 
-  try {
-    // 1️⃣ Reserve selected seats
-    const reserveRes = await reserveSeats({
-      eventId: id,
-      seatIds: selectedSeats,
-      userId,
-    }).unwrap();
+    try {
+      // 1️⃣ Reserve selected seats
+      const reserveRes = await reserveSeats({
+        eventId: id,
+        seatIds: selectedSeats,
+        userId,
+      }).unwrap();
 
-    if (!reserveRes.success) {
-      alert("Failed to reserve seats");
-      return;
+      if (!reserveRes.success) {
+        alert("Failed to reserve seats");
+        return;
+      }
+
+      // 2️⃣ Create Stripe Checkout Session (NEW)
+      const checkoutRes = await createPaymentIntent({
+        amount: total,
+        eventId: id,
+        seatIds: selectedSeats,
+        userId,
+      }).unwrap();
+
+      if (!checkoutRes?.url) {
+        alert("Failed to create payment session");
+        return;
+      }
+
+      const bookingres = await addbooking({
+        userId,
+        eventId: id,
+        total,
+        selectedSeats,
+      }).unwrap();
+
+      // 3️⃣ Redirect user to Stripe Checkout (NEW Flow)
+      window.location.href = checkoutRes.url;
+    } catch (err) {
+      console.log("Error:", err);
+      alert("Something went wrong. Try again!");
     }
-
-    // 2️⃣ Generate Stripe PaymentIntent
-    const paymentRes = await createPaymentIntent({
-      amount: total,
-      eventId: id,
-      seatIds: selectedSeats,
-      userId,
-    }).unwrap();
-
-    const stripe = await stripePromise;
-
-    // 3️⃣ Redirect to Stripe Checkout
-    const result = await stripe?.redirectToCheckout({
-      sessionId: paymentRes.sessionId,
-    });
-
-    if (result?.error) {
-      alert(result.error.message);
-    }
-  } catch (err) {
-    console.log("Error:", err);
-    alert("Something went wrong. Try again!");
-  }
-};
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -218,7 +225,7 @@ const [createPaymentIntent] = useCreatePaymentIntentMutation();
                 className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 onClick={handleContinue}
               >
-               Continue to Checkout
+                Continue to Checkout
               </button>
             </div>
           </div>
