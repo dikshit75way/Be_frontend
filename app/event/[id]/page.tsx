@@ -15,6 +15,7 @@ import { useAddbookingMutation } from "@/app/redux/bookingApi/bookingApi";
 
 export default function Page() {
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+  const [loading , setLoading] = useState(false);
   const params = useParams();
   const id = params.id as string;
   const { data } = useGetEventByIdQuery(id);
@@ -44,6 +45,7 @@ export default function Page() {
 
     try {
       // 1️⃣ Reserve selected seats
+      setLoading(true)
       const reserveRes = await reserveSeats({
         eventId: id,
         seatIds: selectedSeats,
@@ -80,6 +82,9 @@ export default function Page() {
     } catch (err) {
       console.log("Error:", err);
       alert("Something went wrong. Try again!");
+    }
+    finally{
+      setLoading(false)
     }
   };
 
@@ -220,12 +225,37 @@ export default function Page() {
                 </div>
               </div>
 
-              <button
-                disabled={selectedSeats.length === 0}
-                className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            <button
+                disabled={selectedSeats.length === 0 || loading}
+                className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                 onClick={handleContinue}
               >
-                Continue to Checkout
+                {loading ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  "Continue to Checkout"
+                )}
               </button>
             </div>
           </div>
