@@ -7,7 +7,7 @@ export const baseApi = createApi({
   reducerPath: "api",
 
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:3000/api", // global base
+    baseUrl: "http://localhost:8080/api", // global base
     credentials: "include",
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth?.token

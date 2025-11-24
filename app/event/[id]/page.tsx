@@ -65,20 +65,15 @@ export default function Page() {
         userId,
       }).unwrap();
 
-      if (!checkoutRes?.url) {
+      console.log("before payment intent " ,checkoutRes);
+
+      if (!checkoutRes?.data.url) {
         alert("Failed to create payment session");
         return;
       }
 
-      const bookingres = await addbooking({
-        userId,
-        eventId: id,
-        total,
-        selectedSeats,
-      }).unwrap();
-
       // 3️⃣ Redirect user to Stripe Checkout (NEW Flow)
-      window.location.href = checkoutRes.url;
+      window.location.href = checkoutRes?.data.url;
     } catch (err) {
       console.log("Error:", err);
       alert("Something went wrong. Try again!");
