@@ -75,13 +75,14 @@ export default function Page() {
       if(checkoutRes.success)
       {
 
-      const bookingres = await addbooking({
-        userId,
-        eventId: id,
-        total,
-        selectedSeats,
-      }).unwrap();
-
+        const bookingres = await addbooking({
+          userId,
+          eventId: id,
+          total,
+          selectedSeats,
+        }).unwrap();
+      }
+      
       // 3️⃣ Redirect user to Stripe Checkout (NEW Flow)
       window.location.href = checkoutRes.url;
     } catch (err) {
