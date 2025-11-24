@@ -65,11 +65,14 @@ export default function Page() {
         userId,
       }).unwrap();
 
-      if (!checkoutRes?.url) {
+      console.log("before payment intent " ,checkoutRes);
+
+      if (!checkoutRes?.data.url) {
         alert("Failed to create payment session");
         return;
       }
 
+<<<<<<< HEAD
       console.log(checkoutRes);
 
       if(checkoutRes.success)
@@ -83,8 +86,10 @@ export default function Page() {
         }).unwrap();
       }
       
+=======
+>>>>>>> f61adf07948e176464119088c347dabad9ac2684
       // 3️⃣ Redirect user to Stripe Checkout (NEW Flow)
-      window.location.href = checkoutRes.url;
+      window.location.href = checkoutRes?.data.url;
     } catch (err) {
       console.log("Error:", err);
       alert("Something went wrong. Try again!");

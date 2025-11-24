@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 export default function Booking() {
   const { data } = useFetchBookingsQuery();
+  console.log("debugging all the booking of todays " , data);
   const router = useRouter();
 
   return (
