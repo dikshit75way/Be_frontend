@@ -70,6 +70,11 @@ export default function Page() {
         return;
       }
 
+      console.log(checkoutRes);
+
+      if(checkoutRes.success)
+      {
+
       const bookingres = await addbooking({
         userId,
         eventId: id,
