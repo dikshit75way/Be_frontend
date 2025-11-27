@@ -27,6 +27,7 @@ export default function Page() {
 
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const userId = user?._id as string;
+  console.log("userId for conflict testing" , userId);
 
   const [reserveSeats] = useReserveSeatsMutation();
   const [createPaymentIntent] = useCreatePaymentIntentMutation();
@@ -42,8 +43,11 @@ export default function Page() {
   const total = subTotal + fess;
 
   const handleContinue = async () => {
-    if (!isAuthenticated) return alert("Please login first");
-
+    if (!isAuthenticated || !userId) {
+  alert("Please login first");
+  router.push("/auth/login");
+  return;
+}
     try {
       // 1️⃣ Reserve selected seats
       setLoading(true)

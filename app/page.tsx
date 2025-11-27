@@ -11,8 +11,8 @@ export default function Home() {
   
 
   return (
-    <div className="flex flex-col p-12 justify-center w-screen">
-      <div className="flex flex-col justify-start p-5 gap-6">
+    <div className="flex flex-col p-12 justify-center w-screen mt-5">
+      <div className="flex flex-col justify-start p-5 gap-3">
         <h1 className="text-5xl font-extrabold font-serif">
           Discover Amazing Events
         </h1>

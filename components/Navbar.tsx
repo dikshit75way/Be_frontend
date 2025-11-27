@@ -17,6 +17,8 @@ export default function Navbar() {
   }
 
   return (
+    <header className="fixed top-0 w-full z-50 transition-all ducr ">
+
     <nav className="w-full bg-white border-b border-blue-100 p-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
@@ -46,15 +48,15 @@ export default function Navbar() {
         <div className="md:hidden">
           {open ? (
             <X
-              size={28}
-              className="cursor-pointer"
-              onClick={() => setOpen(false)}
+            size={28}
+            className="cursor-pointer"
+            onClick={() => setOpen(false)}
             />
           ) : (
             <Menu
-              size={28}
-              className="cursor-pointer"
-              onClick={() => setOpen(true)}
+            size={28}
+            className="cursor-pointer"
+            onClick={() => setOpen(true)}
             />
           )}
         </div>
@@ -78,6 +80,7 @@ export default function Navbar() {
         </div>
       )}
     </nav>
+      </header>
   );
 }
 
