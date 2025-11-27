@@ -10,6 +10,7 @@ import {
 } from "@/app/redux/bookingApi/bookingApi";
 import { useState } from "react";
 import { ISeat } from "@/app/redux/types/events";
+
 import { loadStripe } from "@stripe/stripe-js";
 import { useAddbookingMutation } from "@/app/redux/bookingApi/bookingApi";
 
@@ -31,8 +32,8 @@ export default function Page() {
   const [createPaymentIntent] = useCreatePaymentIntentMutation();
   const [addbooking] = useAddbookingMutation();
 
-  const selectedSeatObjects: ISeat[] = data?.data?.seats?.filter(
-    (seat: ISeat) => selectedSeats.includes(seat.seatId)
+  const selectedSeatObjects: ISeat[] = data?.data?.seatStatus.filter(
+    (seat: ISeat) => selectedSeats.includes(seat.seatNumber)
   );
 
   const subTotal =
@@ -125,7 +126,7 @@ export default function Page() {
                 </div>
                 <div className="flex items-center gap-2 col-span-2">
                   <MapPin className="w-5 h-5 text-primary" />
-                  <span>{data?.data?.venue}</span>
+                  <span>{data?.data?.venue.name}</span>
                 </div>
               </div>
 
@@ -146,17 +147,17 @@ export default function Page() {
             <div className="bg-card rounded-lg p-8 border border-border">
               <h2 className="text-2xl font-bold text-foreground mb-6">
                 Select Your Seats
-              </h2>
+              </h2> 
               <SeatSelector
                 selectedSeats={selectedSeats}
-                seats={data?.data?.seats}
-                onSelectSeat={(seatId) => {
+                seats={data?.data?.seatStatus}
+                onSelectSeat={(seatNumber) => {
                   setSelectedSeats((prev) =>
-                    prev.includes(seatId)
-                      ? prev.filter((s) => s !== seatId)
-                      : [...prev, seatId]
+                    prev.includes(seatNumber)
+                      ? prev.filter((s) => s !== seatNumber)
+                      : [...prev, seatNumber]
                   );
-                }}
+                }}  
               />
               <div className="flex gap-4 mt-6 text-sm">
                 <div className="flex items-center gap-2">

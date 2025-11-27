@@ -1,11 +1,11 @@
 'use client'
 
-import { ISeat } from "@/app/redux/types/events"
+import { IEvent, IEventSeatStatus } from "@/app/redux/types/events" // Updated import
 
 interface SeatSelectorProps {
   selectedSeats: string[]
-  onSelectSeat: (seatId: string) => void
-  seats: ISeat[] | undefined // backend may send undefined initially
+  onSelectSeat: (seatNumber: string) => void
+  seats: IEventSeatStatus | undefined // Updated to IEventSeatStatus
 }
 
 export default function SeatSelector({
@@ -15,15 +15,37 @@ export default function SeatSelector({
 }: SeatSelectorProps) {
 
   // Always ensure seats is an array
+
   const safeSeats = Array.isArray(seats) ? seats : [];
 
   // Group seats by row
+  if(!safeSeats) return null ;
   const groupedSeats = safeSeats.reduce((acc, seat) => {
-    const row = seat.seatId[0]; // extract row letter (A, B, C)
+    const row = seat.seatNumber[0]; // extract row letter (A, B, C)
     if (!acc[row]) acc[row] = [];
     acc[row].push(seat);
     return acc;
-  }, {} as Record<string, ISeat[]>);
+  }, {} as Record<string, IEventSeatStatus[]>);
+
+  // Get seat status with proper typing
+  const getSeatStatus = (seat: IEventSeatStatus) => {
+    return seat.status; // "available" | "reserved" | "booked"
+  };
+
+  // Check if seat is available for selection
+  const isSeatAvailable = (seat: IEventSeatStatus) => {
+    return seat.status === "available";
+  };
+
+  // Check if seat is sold (booked or reserved by someone else)
+  const isSeatSold = (seat: IEventSeatStatus) => {
+    return seat.status === "booked";
+  };
+
+   const isReserved = (seat: IEventSeatStatus) => {
+    return  seat.status === "reserved";
+  };
+
 
   return (
     <div className="flex flex-col items-center gap-6 overflow-x-auto">
@@ -47,25 +69,37 @@ export default function SeatSelector({
 
             <div className="flex gap-2">
               {groupedSeats[row].map((seat) => {
-                const isSelected = selectedSeats.includes(seat.seatId);
-                console.log(seat.status)
-                const isSold = seat.status !== "available";
+                const isSelected = selectedSeats.includes(seat.seatNumber);
+                const isAvailable = isSeatAvailable(seat);
+                const isSold = isSeatSold(seat);
+                 const isreserved = isReserved(seat);
+                const status = getSeatStatus(seat);
+
+                // Different styles based on exact status
+                const getButtonStyles = () => {
+                  if (isSold || isreserved) {
+                    if (status === "booked" || status==="reserved") {
+                      return "bg-muted cursor-not-allowed"; // Red for booked
+                    } 
+                  }
+                  
+                  if (isSelected) {
+                    return "bg-primary text-primary-foreground scale-110"; // Selected
+                  }
+                  
+                  return "bg-card border-2 border-border hover:border-primary"; // Available
+                };
 
                 return (
                   <button
-                    key={seat.seatId}
-                    onClick={() => !isSold && onSelectSeat(seat.seatId)}
-                    disabled={isSold}
-                    className={`w-8 h-8 rounded transition-all ${
-                      isSold
-                        ? "bg-muted cursor-not-allowed"
-                        : isSelected
-                        ? "bg-primary text-primary-foreground scale-110"
-                        : "bg-card border-2 border-border hover:border-primary"
-                    }`}
+                    key={seat.seatNumber}
+                    onClick={() => isAvailable && onSelectSeat(seat.seatNumber)}
+                    disabled={!isAvailable}
+                    className={`w-8 h-8 rounded transition-all flex items-center justify-center ${getButtonStyles()}`}
+                    title={`Seat ${seat.seatNumber} - ${status}${seat.reservedBy ? ` (Reserved by: ${seat.reservedBy})` : ''}`}
                   >
-                    <span className="text-xs">
-                      {seat.seatId.slice(1)} {/* Only seat number */}
+                    <span className="text-xs font-medium">
+                      {seat.seatNumber.slice(1)} {/* Only seat number */}
                     </span>
                   </button>
                 );
@@ -79,6 +113,26 @@ export default function SeatSelector({
 
           </div>
         ))}
+      </div>
+
+      {/* Legend */}
+      <div className="flex gap-4 text-xs">
+        <div className="flex items-center gap-1">
+          <div className="w-4 h-4 bg-card border border-border rounded"></div>
+          <span>Available</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-4 h-4 bg-primary rounded"></div>
+          <span>Selected</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-4 h-4 bg-yellow-500 rounded"></div>
+          <span>Reserved</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-4 h-4 bg-destructive rounded"></div>
+          <span>Booked</span>
+        </div>
       </div>
     </div>
   );

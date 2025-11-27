@@ -7,11 +7,30 @@ interface EventCardProps {
     id: string;
     title: string;
     description: string;
-    venue: string;
+    venue: {
+      name: string;
+      address: string;
+      seats: Array<{
+        seatNumber: string;
+        category: string;
+        basePrice: number;
+        _id?: string;
+      }>;
+    };
     startAt: string;
     createdBy: string;
-    seats: any[];
-    image: { url?: string };
+    seatStatus: Array<{
+      seatNumber: string;
+      status: "available" | "reserved" | "booked";
+      price: number;
+      reservedBy?: string | null;
+      reservedAt?: string | null;
+      _id?: string;
+    }>;
+    image?: {
+      public_id?: string;
+      url?: string;
+    };
     createdAt: string;
     updatedAt: string;
     __v: number;
@@ -52,7 +71,7 @@ export default function EventCard({ event }: EventCardProps) {
         <div className="space-y-2 mb-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <MapPin className="w-4 h-4" />
-            <span className="line-clamp-1">{event.venue}</span>
+            <span className="line-clamp-1">{event.venue.name}</span>
           </div>
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

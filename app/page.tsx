@@ -8,6 +8,7 @@ import { IEvent } from "./redux/types/events";
 export default function Home() {
   const { data, isLoading } = useGetEventsQuery();
   console.log("debbugin the data..", data);
+  
 
   return (
     <div className="flex flex-col p-12 justify-center w-screen">
