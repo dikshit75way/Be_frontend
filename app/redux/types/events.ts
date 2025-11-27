@@ -1,37 +1,58 @@
-// Seat Interface
-export interface ISeat {
-  _id: string; // added because backend returns _id for each seat
-  seatId: string;
-  price: number;
+// Venue Seat Interface (from venueSeatSchema)
+export interface IVenueSeat {
+  _id?: string;
+  seatNumber: string;
+  category: string;
+  basePrice: number;
+}
+
+// Event Seat Status Interface (from eventSeatStatusSchema)
+export interface IEventSeatStatus {
+  _id?: string;
+  seatNumber: string;
   status: "available" | "reserved" | "booked";
+  price: number;
   reservedBy: string | null;
-  reservedAt: string | null; // string or Date
+  reservedAt: string | null;
+}
+
+// Venue Interface
+export interface IVenue {
+  name: string;
+  address: string;
+  seats: IVenueSeat[];
 }
 
 // Event Image Interface
 export interface IEventImage {
-  public_id: string;
-  url: string;
+  public_id?: string;
+  url?: string;
 }
 
-// Event Interface (FULLY MATCHED WITH BACKEND)
+// Event Interface (UPDATED TO MATCH BACKEND SCHEMA)
 export interface IEvent {
   _id: string;   // backend _id
   id: string;    // backend also returns id
   title: string;
   description: string;
-  venue: string;
-  startAt: string | Date | any;   // ISO date string
+  
+  // UPDATED: venue is now an object with seats array
+  venue: IVenue;
+  
+  startAt: string | Date;
   createdBy: string;
 
-  seats: ISeat[];
+  // UPDATED: renamed from 'seats' to 'seatStatus' to match backend
+  seatStatus: IEventSeatStatus[];
 
-  image: IEventImage;
+  // UPDATED: made optional to match backend schema
+  image?: IEventImage;
 
   createdAt: string;
   updatedAt: string;
   __v: number;
 
+  // Virtual fields from backend
   totalSeats: number;
   availableSeats: number;
   reservedSeats: number;
