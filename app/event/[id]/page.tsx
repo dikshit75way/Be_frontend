@@ -73,6 +73,22 @@ export default function Page() {
         return;
       }
 
+<<<<<<< HEAD
+      console.log(checkoutRes);
+
+      if(checkoutRes.success)
+      {
+
+        const bookingres = await addbooking({
+          userId,
+          eventId: id,
+          total,
+          selectedSeats,
+        }).unwrap();
+      }
+      
+=======
+>>>>>>> f61adf07948e176464119088c347dabad9ac2684
       // 3️⃣ Redirect user to Stripe Checkout (NEW Flow)
       window.location.href = checkoutRes?.data.url;
     } catch (err) {
