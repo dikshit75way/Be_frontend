@@ -1,17 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @next/next/no-img-element */
+// @ts-ignore
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLoginMutation } from "../redux/authApi/authApi";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setCredentials } from "../redux/slices/authSlice";
+import { useSearchParams } from "next/navigation";
 export default function ProfileCard() {
   const router  = useRouter();
   const dispatch = useAppDispatch();
 
   const [formData, setFormData] = useState({ email: "", password: "" });
 
-  const [login, { isLoading, error }] = useLoginMutation();
+  const [login, { isLoading, error  }] = useLoginMutation();
+  const params = useSearchParams();
+  const redirectTo = params.get("redirect");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,9 +30,9 @@ export default function ProfileCard() {
 
       console.log("login sucess ", result);
       dispatch(
-        setCredentials({ token: result?.data?.token, user: result?.data.user })
+        setCredentials({ token: result?.data?.token, user: result?.data.user , refreshToken : result?.data?.refreshToken })
       );
-      router.push("/");
+      router.push(redirectTo || "/");
     } catch (error: any) {
       console.error("Login failed", error);
     }
@@ -47,11 +53,12 @@ export default function ProfileCard() {
         onSubmit={handleSubmit}
         className="flex flex-col overflow-y-hidden justify-center gap-4 shadow-lg p-8 w-full max-w-sm bg-white rounded-2xl border border-gray-100"
       >
-        {error && (
-          <p className="text-red-600 text-sm font-medium text-center">
-            {error as string}
-          </p>
-        )}
+     
+     {error ? (
+  <p className="text-red-600 text-sm font-medium text-center">
+    {error as string}
+  </p>
+) : null}
 
         <input
           name="email"

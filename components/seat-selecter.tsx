@@ -1,6 +1,6 @@
 'use client'
 
-import { IEvent, IEventSeatStatus } from "@/app/redux/types/events" // Updated import
+import {  IEventSeatStatus } from "@/app/redux/types/events" // Updated import
 
 interface SeatSelectorProps {
   selectedSeats: string[]
@@ -68,7 +68,7 @@ export default function SeatSelector({
             </span>
 
             <div className="flex gap-2">
-              {groupedSeats[row].map((seat) => {
+              {groupedSeats[row].map((seat : IEventSeatStatus) => {
                 const isSelected = selectedSeats.includes(seat.seatNumber);
                 const isAvailable = isSeatAvailable(seat);
                 const isSold = isSeatSold(seat);

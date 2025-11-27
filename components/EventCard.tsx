@@ -1,10 +1,10 @@
 import { MapPin, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation';
 
-interface EventCardProps {
+export interface EventCardProps {
   event: {
     _id: string;
-    id: string;
+    // id: string;
     title: string;
     description: string;
     venue: {
@@ -17,8 +17,8 @@ interface EventCardProps {
         _id?: string;
       }>;
     };
-    startAt: string;
-    createdBy: string;
+    startAt: string | Date;    
+    createdBy: string | Date; 
     seatStatus: Array<{
       seatNumber: string;
       status: "available" | "reserved" | "booked";
@@ -31,8 +31,8 @@ interface EventCardProps {
       public_id?: string;
       url?: string;
     };
-    createdAt: string;
-    updatedAt: string;
+    createdAt: string | Date;
+    updatedAt: string | Date;
     __v: number;
     totalSeats: number;
     availableSeats: number;

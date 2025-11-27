@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseApi } from "../EventApi/baseApi";
-import { bookingDto, resBooking } from "../types/booking";
+
 
 export const bookingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -11,13 +12,6 @@ export const bookingApi = baseApi.injectEndpoints({
       }),
     }),
 
-    addbooking: builder.mutation<resBooking, bookingDto>({
-      query: (body) => ({
-        url: `/booking/${body.eventId}/book`,
-        method: "POST",
-        body,
-      }),
-    }),
 
     createPaymentIntent: builder.mutation({
       query: ({ amount, eventId, seatIds, userId }) => ({
@@ -39,7 +33,6 @@ export const bookingApi = baseApi.injectEndpoints({
 
 export const {
   useReserveSeatsMutation,
-  useAddbookingMutation,
   useCreatePaymentIntentMutation,
   useFetchBookingsQuery,
   useFetchSingleBookingQuery,

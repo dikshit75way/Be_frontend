@@ -9,10 +9,9 @@ import {
   useCreatePaymentIntentMutation,
 } from "@/app/redux/bookingApi/bookingApi";
 import { useState } from "react";
-import { ISeat } from "@/app/redux/types/events";
-
+import { IEventSeatStatus } from "@/app/redux/types/events";
 import { loadStripe } from "@stripe/stripe-js";
-import { useAddbookingMutation } from "@/app/redux/bookingApi/bookingApi";
+
 
 export default function Page() {
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
@@ -31,10 +30,10 @@ export default function Page() {
 
   const [reserveSeats] = useReserveSeatsMutation();
   const [createPaymentIntent] = useCreatePaymentIntentMutation();
-  const [addbooking] = useAddbookingMutation();
 
-  const selectedSeatObjects: ISeat[] = data?.data?.seatStatus.filter(
-    (seat: ISeat) => selectedSeats.includes(seat.seatNumber)
+
+  const selectedSeatObjects: IEventSeatStatus[] = data?.data?.seatStatus.filter(
+    (seat: IEventSeatStatus) => selectedSeats.includes(seat.seatNumber)
   );
 
   const subTotal =
@@ -45,7 +44,7 @@ export default function Page() {
   const handleContinue = async () => {
     if (!isAuthenticated || !userId) {
   alert("Please login first");
-  router.push("/auth/login");
+  router.push(`/login?redirect=/event/${id}`);
   return;
 }
     try {
@@ -76,9 +75,6 @@ export default function Page() {
         alert("Failed to create payment session");
         return;
       }
-
-
-      
 
       // 3️⃣ Redirect user to Stripe Checkout (NEW Flow)
       window.location.href = checkoutRes?.data.url;

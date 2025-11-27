@@ -32,7 +32,7 @@ export interface IEventImage {
 // Event Interface (UPDATED TO MATCH BACKEND SCHEMA)
 export interface IEvent {
   _id: string;   // backend _id
-  id: string;    // backend also returns id
+  // id: string;    // backend also returns id
   title: string;
   description: string;
   
@@ -48,8 +48,8 @@ export interface IEvent {
   // UPDATED: made optional to match backend schema
   image?: IEventImage;
 
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | Date ;
+  updatedAt: string | Date;
   __v: number;
 
   // Virtual fields from backend
@@ -60,8 +60,8 @@ export interface IEvent {
 }
 
 // API Response Wrapper
-export interface IFetchEventResponse {
+export interface IFetchEventResponse <T>{
   success: boolean;
   message: string;
-  data: object | null | any;
+  data: T ;
 }
