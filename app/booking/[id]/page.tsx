@@ -89,6 +89,7 @@ export default function ConfirmationPage() {
                 <h2 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">
                   Ticket Details
                 </h2>
+
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span>Quantity</span>
